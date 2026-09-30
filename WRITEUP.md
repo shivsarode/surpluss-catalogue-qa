@@ -74,7 +74,9 @@ The product quantity is 20 because this satisfies the product's MOQ.
 
 I would run the unit/integration tests, access-control tests, typecheck, lint, and the Playwright Chromium test in CI.
 
-Any functional test, security/access-control test, typecheck, or lint failure should block the merge.
+New functional test, security/access-control, typecheck, or lint failures should block the merge.
+
+Known bug reproduction tests are kept as warnings until the underlying application bugs are fixed.
 
 Flaky Playwright failures should be investigated rather than ignored.
 
@@ -106,13 +108,15 @@ I would enforce authorization on the server before allowing Admin-only operation
 
 I would also add automated regression tests for each role boundary so these permissions cannot accidentally regress.
 
----------------------------------------------------------------------------------------------
-## CI Validation
+## 7. CI Validation
+
 The GitHub Actions workflow runs on pull requests and separates blocking quality checks from known bug reproduction tests.
 
----------------------------------------------------------------------------------------------
+Typecheck, lint, business validation tests, and the Playwright end-to-end test are blocking checks.
 
-## 6. Testing an AI Workflow
+Known bug reproduction tests are allowed to fail because they document currently identified application defects.
+
+## 8. Testing an AI Workflow
 
 For an AI workflow that converts messy seller messages into structured product information, I would use a combination of deterministic assertions, semantic validation, and regression datasets. I would not require the complete model response to match an exact JSON string because AI output can vary while still representing the same information correctly.
 
