@@ -105,3 +105,5 @@ For example, the catalogue update API allows a Staff user to publish a catalogue
 I would enforce authorization on the server before allowing Admin-only operations such as publishing or deleting catalogues.
 
 I would also add automated regression tests for each role boundary so these permissions cannot accidentally regress.
+## CI Validation
+The GitHub Actions workflow runs on pull requests and separates blocking quality checks from known bug reproduction tests.
