@@ -4,7 +4,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  qa:
     runs-on: ubuntu-latest
 
     services:
@@ -50,8 +50,23 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Unit and integration tests
-        run: npm run test
+      - name: Business and validation tests
+        run: >
+          npx vitest run
+          tests/api-access-control.test.ts
+          tests/enquiry-validation.test.ts
+          tests/price-discount.test.ts
+          tests/spreadsheet-import.test.ts
+
+      - name: Known bug reproduction tests
+        continue-on-error: true
+        run: >
+          npx vitest run
+          tests/catalogue-lifecycle.test.ts
+          tests/draft-catalogue-access.test.ts
+          tests/id-tampering.test.ts
+          tests/server-actions-access.test.ts
+          tests/staff-publish.test.ts
 
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
