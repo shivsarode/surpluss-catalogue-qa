@@ -1,0 +1,107 @@
+# Write-Up
+
+## 1. Testing Strategy
+
+I used a risk-based testing approach and focused first on business-critical and security-sensitive areas.
+
+### Automated Tests
+
+- Price and discount calculations — 4 tests
+- Spreadsheet import mapping and validation — 4 tests
+- Catalogue lifecycle — 4 tests
+- Enquiry validation — 5 tests
+- API and access-control testing — 5 tests
+- End-to-end buyer journey — 1 Playwright test
+
+The highest-risk areas were catalogue authorization, catalogue visibility, enquiry validation, and data integrity.
+
+The tests intentionally focus on important business rules rather than testing every component.
+
+## 2. Riskiest Area
+
+The riskiest area is catalogue access control and publishing authorization.
+
+Staff and Admin users have different permissions, while draft catalogues may contain confidential pricing and product information.
+
+If this area is not tested, a Staff user could potentially publish or delete catalogues, or unauthorized users could access draft data.
+
+I identified multiple authorization issues during testing, including Staff publishing and deleting catalogues.
+
+## 3. What I Left Out
+
+I deliberately did not test:
+
+- Every UI component and styling detail
+- Low-risk utility functions
+- Every possible product/catalogue combination
+- Exhaustive database scenarios
+- Browser/device combinations beyond Chromium
+- Performance/load testing
+
+The goal was to spend the available time on high-risk business behavior and authorization rather than maximize test count.
+
+## 4. Playwright End-to-End Test
+
+I automated one complete buyer journey:
+
+Published catalogue → Product → Contact Us → Enquiry → Submit → Admin Leads Inbox
+
+The test verifies:
+
+- Published catalogue is accessible
+- Product can be selected
+- Buyer can submit an enquiry
+- Admin can access Leads
+- Submitted buyer, catalogue, quantity, and status appear correctly
+
+### Waiting and Stability
+
+I used Playwright's condition-based waits through locators and assertions such as `toBeVisible()`, `toHaveURL()`, and `toContainText()`.
+
+I avoided fixed `waitForTimeout()` calls.
+
+I used accessible role/label-based selectors instead of CSS classes or fragile DOM selectors.
+
+### Test Data
+
+The test uses the seeded published catalogue and product.
+
+The buyer name is generated using `Date.now()` so each test run creates a unique buyer.
+
+The product quantity is 20 because this satisfies the product's MOQ.
+
+### If Running on Every Pull Request
+
+I would run the unit/integration tests, access-control tests, typecheck, lint, and the Playwright Chromium test in CI.
+
+Any functional test, security/access-control test, typecheck, or lint failure should block the merge.
+
+Flaky Playwright failures should be investigated rather than ignored.
+
+## 5. AI Usage
+
+I used ChatGPT as a testing and development assistant.
+
+I used it to:
+
+- Understand the assessment requirements
+- Plan a risk-based testing strategy
+- Identify high-risk areas
+- Draft and refine Vitest tests
+- Analyze failing tests and trace them to application code
+- Help structure `FINDINGS.md` and `WRITEUP.md`
+- Draft the initial Playwright test structure
+
+I then adapted the tests to the actual application, reviewed the locators and assertions, ran the tests locally, and verified the results.
+
+I did not treat AI-generated output as automatically correct.
+
+## 6. One Quality Problem
+
+One significant quality problem is missing server-side authorization checks.
+
+For example, the catalogue update API allows a Staff user to publish a catalogue because it checks authentication but does not enforce the Admin role.
+
+I would enforce authorization on the server before allowing Admin-only operations such as publishing or deleting catalogues.
+
+I would also add automated regression tests for each role boundary so these permissions cannot accidentally regress.
